@@ -1,0 +1,12 @@
+# Imagen derivada de la de vLLM fijada por digest (vllm-image.lock): solo anade el extra b12x, que
+# la imagen oficial NO trae y sin el cual los kernels NVFP4/FP8 de SM120 no estan disponibles
+# (B12xNvFp4LinearKernel.is_supported(120) = False).
+#
+# El extra `vllm[b12x]` lo resuelve vLLM con su propio pin (b12x 1.2.6 para vLLM 0.29.0) y deja
+# nvidia-cutlass-dsl en 4.6.2: el pin a 4.4.2 de la receta (doc 02 §6) no hace falta con esta
+# imagen. Se construye con build-vllm-image.sh, que pasa los argumentos.
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+
+ARG VLLM_VERSION
+RUN uv pip install --system "vllm[b12x]==${VLLM_VERSION}"

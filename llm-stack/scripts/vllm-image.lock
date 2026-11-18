@@ -1,0 +1,5 @@
+# Imagen de vLLM fijada. Generado por pull-vllm-image.sh el 2026-09-18.
+image=vllm/vllm-openai@sha256:c2914767605584b6d8f45686b82de173ecc99e781897aa3d0a66dacd72c51ae1
+tag=latest
+size_bytes=30492682068
+created=2026-09-09T02:09:02.846798292Z

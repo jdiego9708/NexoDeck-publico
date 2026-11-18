@@ -1,0 +1,6 @@
+# Los scripts corren dentro de Linux (WSL2): con finales de linea CRLF bash falla con
+# "$'\r': orden no encontrada" y sin mas pista. Se fuerza LF aunque el repo se clone en Windows.
+*.sh text eol=lf
+*.py text eol=lf
+*.json text eol=lf
+*.lock text eol=lf

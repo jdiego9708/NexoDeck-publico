@@ -1,0 +1,46 @@
+[package]
+name = "nexodeck-hardware"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+nvml-wrapper = "0.12.1"
+sysinfo = "0.38.4"
+# Usada por gpu_windows.rs (ADL) y por vulkan.rs. Esta ultima SI es
+# multiplataforma -- el loader de Vulkan se carga en runtime tanto en Windows
+# (vulkan-1.dll) como en Linux (libvulkan.so.1) -- asi que libloading no puede
+# quedar acotada a `cfg(windows)` como estaba antes.
+libloading = "0.9.0"
+
+# Solo usada por gpu_windows.rs, foreground.rs y disks.rs (los tres
+# #[cfg(target_os = "windows")]) -- se acota aca tambien a nivel de
+# Cargo.toml para que CI en Linux ni siquiera la compile.
+# `Win32_UI_WindowsAndMessaging` es para `GetForegroundWindow`;
+# `Win32_Storage_FileSystem` es para `QueryDosDeviceW`, con el que
+# `disks.rs` distingue un volumen fisico de un montaje de nube/red;
+# `Win32_System_IO` para los `DeviceIoControl` de `disk_temp`;
+# `Win32_System_Services` y `Win32_UI_Shell` para `sensor_helper`, que
+# consulta el servicio de sensores y lo instala con un UAC.
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.62.2", features = ["Win32_System_Performance", "Win32_Graphics_Dxgi", "Win32_Graphics_Dxgi_Common", "Win32_Foundation", "Win32_Storage_FileSystem", "Win32_UI_WindowsAndMessaging", "Win32_System_IO", "Win32_System_Services", "Win32_UI_Shell"] }
+# Unico consumidor: `components.rs`, para leer los modulos de memoria
+# (`Win32_PhysicalMemory`: marca, numero de parte y velocidad). Sin
+# `default-features` no arrastra `chrono`: no leemos ninguna fecha de WMI.
+#
+# **No** lo usa `cpu_temp`: las versiones actuales de LibreHardwareMonitor ya
+# no traen proveedor WMI --su menu Options solo ofrece "Remote Web Server"--,
+# verificado contra la app real.
+wmi = { version = "0.18.4", default-features = false }
+# Unico consumidor: `cpu_temp/windows_provider.rs`, para parsear las lineas
+# que emite el sidecar de sensores (`sensors/NexoDeckSensors`).
+#
+# **Antes aca vivia tambien `reqwest`**, cuando la temperatura del CPU se leia
+# del servidor web de LibreHardwareMonitor por HTTP. Con el sidecar propio la
+# comunicacion es por named pipe (un `File` y nada mas), asi que el crate de
+# hardware ya no arrastra una pila HTTP entera.
+serde_json = "1"
+# Unico consumidor: `disk_temp`, para saber donde persistir la ultima
+# temperatura conocida de cada disco. La ruta se resuelve por usuario en
+# runtime, nunca hardcodeada -- misma regla que el resto del proyecto.
+directories = "5"

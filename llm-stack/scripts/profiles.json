@@ -1,0 +1,40 @@
+{
+  "profiles": {
+    "A": {
+      "router": {
+        "source": "stack",
+        "model": "router"
+      },
+      "thinking": {
+        "source": "stack",
+        "model": "fast"
+      }
+    },
+    "B": {
+      "router": {
+        "source": "stack",
+        "model": "router"
+      },
+      "thinking": {
+        "source": "stack",
+        "model": "complex"
+      }
+    },
+    "C": {
+      "router": {
+        "source": "remote",
+        "provider_id": "deepseek",
+        "base_url": "https://api.deepseek.com",
+        "upstream_model": "deepseek-flash",
+        "display_name": "DeepSeek"
+      },
+      "thinking": {
+        "source": "remote",
+        "provider_id": "deepseek",
+        "base_url": "https://api.deepseek.com",
+        "upstream_model": "deepseek-flash",
+        "display_name": "DeepSeek"
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/nexodeck-hardware",
+    "crates/nexodeck-protocol",
+    "crates/nexodeck-transport",
+    "crates/nexodeck-actions",
+    "crates/nexodeck-ai",
+    "crates/nexodeck-vault",
+    "crates/nexodeck-db",
+    "crates/nexodeck-ffi",
+    "crates/nexodeck-relay",
+    "crates/nexodeck-hub",
+    "crates/nexodeck-notify",
+    "crates/nexodeck-control",
+    "crates/nexodeck-editor",
+    "crates/nexodeck-docs",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.90"
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }

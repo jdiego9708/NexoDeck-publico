@@ -1,0 +1,72 @@
+{
+  "models": [
+    {
+      "role": "router",
+      "repo": "AxionML/Qwen3.5-4B-NVFP4",
+      "dir": "qwen3.5-4b-nvfp4",
+      "expected_quant": "nvfp4",
+      "display_name": "Qwen 3.5 4B (NVFP4)",
+      "notes": "Modelo liviano de enrutamiento. Clasifica, decide y hace tool-calling; generalista (70 % MMLU). Es el que siempre esta cargado.",
+      "size_gb": 2.5,
+      "vram_gb": 4.3,
+      "context": 16384
+    },
+    {
+      "role": "fast",
+      "repo": "mattbucci/gemma-4-12B-AWQ",
+      "dir": "gemma-4-12b-awq",
+      "expected_quant": "awq",
+      "display_name": "Gemma 4 12B (AWQ)",
+      "notes": "El trabajador recomendado del perfil A. Rinde mejor que el Complejo en codigo y en conocimiento general, y arranca sin compilacion JIT.",
+      "size_gb": 8.0,
+      "vram_gb": 11.2,
+      "context": 8192
+    },
+    {
+      "role": "complex",
+      "repo": "AminFa12/qwen3-coder-30b-a3b-reap50-nvfp4",
+      "dir": "qwen3-coder-30b-reap50-nvfp4",
+      "expected_quant": "nvfp4",
+      "display_name": "Qwen3-Coder 30B A3B REAP-50 (NVFP4)",
+      "notes": "Trabajador del perfil B: especialista de codigo (MoE podado). Aprox. 2,2x mas rapido y con contexto mas largo, pero flojo en conocimiento general.",
+      "size_gb": 9.9,
+      "vram_gb": 10.6,
+      "context": 16384
+    },
+    {
+      "role": "writer",
+      "repo": "QuantTrio/Qwen3.5-9B-AWQ",
+      "dir": "qwen3.5-9b-awq",
+      "expected_quant": "awq",
+      "display_name": "Qwen 3.5 9B (AWQ)",
+      "notes": "Trabajador de texto del perfil C (Texto): preguntas, redaccion y conocimiento general. Contexto largo con atencion hibrida (KV pequeno) y sin JIT (Marlin). Pesos ~11.5 GiB: corre SOLO, con la GPU entera; no cabe junto al Router.",
+      "size_gb": 11.5,
+      "vram_gb": 12.0,
+      "context": 32768
+    }
+  ],
+  "alternatives": [
+    {
+      "role": "router",
+      "repo": "QuantTrio/Qwen3.5-4B-AWQ",
+      "dir": "qwen3.5-4b-awq",
+      "expected_quant": "awq",
+      "display_name": "Qwen 3.5 4B (AWQ)",
+      "notes": "Alternativa del router sin NVFP4: util en GPUs que no son SM120, donde AWQ/Marlin es mas rapido y no necesita JIT.",
+      "size_gb": 2.4,
+      "vram_gb": 4.5,
+      "context": 16384
+    },
+    {
+      "role": "writer",
+      "repo": "Qwen/Qwen3-8B-AWQ",
+      "dir": "qwen3-8b-awq",
+      "expected_quant": "awq",
+      "display_name": "Qwen3 8B (AWQ)",
+      "notes": "Alternativa del writer que SI cabe junto al Router (~6 GiB): permite un perfil de dos modelos, a cambio de menos contexto (16k) y de una generacion anterior.",
+      "size_gb": 6.1,
+      "vram_gb": 6.5,
+      "context": 32768
+    }
+  ]
+}

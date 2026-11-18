@@ -1,0 +1,51 @@
+[package]
+name = "nexodeck_ffi"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+flutter_rust_bridge = "=2.12.0"
+nexodeck-actions = { path = "../nexodeck-actions" }
+nexodeck-hardware = { path = "../nexodeck-hardware" }
+nexodeck-protocol = { path = "../nexodeck-protocol" }
+nexodeck-transport = { path = "../nexodeck-transport" }
+nexodeck-hub = { path = "../nexodeck-hub" }
+nexodeck-notify = { path = "../nexodeck-notify" }
+# Solo por `hello` (hex del token del tunel); sin el servidor.
+nexodeck-relay = { path = "../nexodeck-relay", default-features = false }
+# `sync` para el broadcast del runner de comandos (api/actions.rs) y de los
+# eventos del asistente; hasta ahora llegaba por unificacion de features de
+# otros crates, que es fragil.
+tokio = { version = "1", features = ["time", "rt", "sync"] }
+# Solo para reparsear los argumentos de invocacion de una suscripcion
+# SignalR (api/hub.rs) -- cada uno ya llega como texto JSON desde Dart.
+serde_json = "1"
+
+# El asistente de IA es solo de escritorio: correr un modelo de 9 GB en un
+# telefono no es el caso de uso, y meter reqwest + zip + tar en el `.so` de
+# Android es exactamente el tipo de cambio que en Fase 4 dejo el APK sin
+# `libnexodeck_ffi.so` sin que el build fallara. Mismo gateo que `nusb` y
+# `arboard`.
+[target.'cfg(not(target_os = "android"))'.dependencies]
+nexodeck-ai = { path = "../nexodeck-ai" }
+# El servidor de control es solo de escritorio por el mismo motivo: Claude Code
+# no corre en el telefono, y axum no tiene nada que hacer dentro del `.so` de
+# Android. Las funciones de `api/control.rs` si existen en los tres targets,
+# con el cuerpo cfg-gateado -- ver el comentario de cabecera de ese modulo.
+nexodeck-control = { path = "../nexodeck-control" }
+# El buzon de documentacion lo alimenta el servidor de control y lo procesa un
+# modelo: solo escritorio por los mismos dos motivos. `jiff` es para la hora con
+# la que se marcan las decisiones del usuario.
+nexodeck-docs = { path = "../nexodeck-docs" }
+jiff = "0.2"
+
+# El editor de notas es una ventana WebView2 (wry): solo Windows. Android y Linux
+# no arrastran wry al binario.
+[target.'cfg(windows)'.dependencies]
+nexodeck-editor = { path = "../nexodeck-editor" }
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }

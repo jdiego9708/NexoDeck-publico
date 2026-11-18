@@ -1,0 +1,39 @@
+[package]
+name = "nexodeck-control"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+nexodeck-actions = { path = "../nexodeck-actions" }
+nexodeck-notify = { path = "../nexodeck-notify" }
+# El buzon de documentacion: `submit_findings` guarda ahi y despierta al
+# trabajador. Nunca se llama al modelo dentro de una peticion MCP.
+nexodeck-docs = { path = "../nexodeck-docs" }
+jiff = "0.2"
+serde = { workspace = true }
+serde_json = "1"
+thiserror = "2.0.18"
+tokio = { version = "1", features = ["rt", "sync", "net", "time"] }
+# Misma version de rand que nexodeck-transport, para que cargo no compile dos
+# copias del crate.
+rand = "0.8"
+# Para persistir el token en el directorio de datos del usuario, al lado de
+# la identidad TLS del transporte. Misma version que nexodeck-transport.
+directories = "5"
+# Solo `http1` y `json`: este servidor atiende un unico POST en loopback. Sin
+# `tower-log`, sin `http2`, sin `form`. hyper ya esta en el arbol por reqwest
+# (nexodeck-ai y nexodeck-hub), asi que esto no trae una pila HTTP nueva.
+axum = { version = "0.8", default-features = false, features = [
+    "http1",
+    "json",
+    "tokio",
+    # Solo por los parametros del buzon (`?since=&confirm=`).
+    "query",
+] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time"] }
+# Cliente HTTP solo para el test de punta a punta. Sin TLS: el servidor
+# escucha en loopback y en claro, asi que arrastrar rustls aca no aporta.
+reqwest = { version = "0.12", default-features = false, features = ["json"] }

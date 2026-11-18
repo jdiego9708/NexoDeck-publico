@@ -1,0 +1,46 @@
+name: nexodeck_workspace
+publish_to: none
+environment:
+  sdk: ^3.11.0
+
+workspace:
+  - app
+
+dev_dependencies:
+  melos: ^7.0.0
+
+melos:
+  name: nexodeck
+  scripts:
+    setup:
+      run: cd app/rust_builder/cargokit/build_tool && dart pub get
+      description: >
+        Resuelve las dependencias del build_tool vendorizado de cargokit. Hace
+        falta una vez por maquina/perfil de usuario -- sin esto, flutter analyze
+        reporta errores en rust_builder/cargokit (no en el codigo del proyecto).
+    app:analyze:
+      run: cd app && flutter analyze
+      description: Corre flutter analyze sobre app/
+    rust:build:
+      run: cargo build --manifest-path core/Cargo.toml
+      description: Compila el workspace de Rust completo
+    rust:test:
+      run: cargo test --manifest-path core/Cargo.toml
+      description: Corre los tests del workspace de Rust completo
+    bridge:gen:
+      run: cd app && flutter_rust_bridge_codegen generate
+      description: Regenera los bindings Dart<->Rust del bridge FFI
+    editor:build:
+      run: cd core/crates/nexodeck-editor/web && npm ci && npm run build
+      description: >
+        Reconstruye la pagina del editor de notas (CodeMirror 6) en
+        core/crates/nexodeck-editor/assets. Hay que correrlo, y commitear assets/,
+        despues de tocar web/: el binario embebe esos ficheros, y asi flutter build
+        no necesita Node.
+    sensors:build:
+      run: dotnet publish sensors/NexoDeckSensors -c Release -o dist/sensors
+      description: >
+        Publica el sidecar de sensores (NexoDeckSensors.exe) en dist/sensors.
+        Es lo que empaqueta el instalador, y lo que hay que regenerar despues
+        de tocar sensors/. Sale autocontenido: la maquina destino no necesita
+        tener instalado el runtime de .NET.

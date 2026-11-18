@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Filtro de accessory AOA (Fase 5-D). Android matchea estos tres campos
+  contra los strings que la PC manda en el handshake
+  (`ACCESSORY_SEND_STRING`, ver `AccessoryIdentity::default()` en
+  `core/crates/nexodeck-transport/src/usb/aoa.rs`) para decidir a que app le
+  entrega el accessory.
+
+  Si estos valores y los de Rust dejan de coincidir, el telefono entra en
+  accessory mode igual pero NINGUNA app recibe el intent, y la sesion nunca
+  arranca, sin ningun error visible en ninguno de los dos lados. Se cambian
+  juntos o no se cambian.
+
+  El atributo `version` NO va a proposito, y no es un olvido: los atributos
+  ausentes actuan como comodin, mientras que ponerlo es una trampa real.
+  AAPT tipa "1.0" como numero y lo guarda como 1, asi que el filtro
+  compilado nunca coincidiria con el string "1.0" que manda el handshake
+  (verificado con `aapt2 dump xmltree` sobre el APK ya construido). El
+  match por fabricante y modelo alcanza para identificar la app.
+-->
+<resources>
+    <usb-accessory manufacturer="NexoDeck" model="NexoDeck" />
+</resources>

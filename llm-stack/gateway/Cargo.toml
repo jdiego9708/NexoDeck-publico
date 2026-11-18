@@ -1,0 +1,37 @@
+[package]
+name = "llm-gateway"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.90"
+description = "Pasarela autenticada delante de los servidores vLLM del stack multiagente"
+publish = false
+
+# Crate independiente: no forma parte del workspace de `core/` (esto es una idea en `docs/ideas`).
+# Sin este bloque, cargo buscaría un workspace en los directorios padre y se quejaría.
+[workspace]
+
+[lib]
+name = "llm_gateway"
+path = "src/lib.rs"
+
+[[bin]]
+name = "llm-gateway"
+path = "src/main.rs"
+
+[profile.release]
+lto = "thin"
+strip = true
+
+[dependencies]
+axum = "0.8.9"
+directories = "6.0.0"
+futures-util = "0.3.34"
+getrandom = "0.4.3"
+reqwest = { version = "0.13.5", default-features = false, features = ["stream", "rustls"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+sha2 = "0.11.0"
+tokio = { version = "1.53.1", features = ["rt-multi-thread", "macros", "signal", "net", "time"] }
+
+[dev-dependencies]
+tempfile = "3.27.0"

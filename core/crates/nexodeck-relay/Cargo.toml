@@ -1,0 +1,35 @@
+[package]
+name = "nexodeck-relay"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+# Dependencias minimas, y a proposito: este binario se copia a un VPS ajeno,
+# asi que cuanto menos arrastre, mas facil es auditarlo y moverlo. `socket2`
+# esta porque tokio no expone TCP_USER_TIMEOUT ni el keepalive, y sin eso un
+# peer que muere en silencio (el telefono cambia de red) deja el empalme
+# colgado para siempre -- ver `configure_dead_peer_detection` en `server.rs`.
+[dependencies]
+tokio = { version = "1", features = [
+    "rt-multi-thread",
+    "net",
+    "io-util",
+    "time",
+    "macros",
+    "sync",
+], optional = true }
+socket2 = { version = "0.6", optional = true }
+
+[features]
+default = ["server"]
+# El servidor del relay. `nexodeck-transport` depende de este crate con
+# `default-features = false` para reusar SOLO el modulo `hello` --el formato
+# del saludo, que es codigo puro-- sin meter el servidor ni tokio en la app.
+# Tener una sola definicion del formato es justamente lo que evita que las
+# dos puntas se desincronicen.
+server = ["dep:tokio", "dep:socket2"]
+
+[[bin]]
+name = "nexodeck-relay"
+path = "src/main.rs"
+required-features = ["server"]

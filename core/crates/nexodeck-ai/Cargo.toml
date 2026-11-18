@@ -1,0 +1,61 @@
+[package]
+name = "nexodeck-ai"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+nexodeck-hardware = { path = "../nexodeck-hardware" }
+serde = { workspace = true }
+serde_json = "1"
+thiserror = "2.0"
+directories = "5"
+futures-util = "0.3"
+log = "0.4"
+sha2 = "0.10"
+tokio = { version = "1", features = ["rt", "sync", "time", "macros", "io-util", "fs", "process"] }
+
+# `rustls-tls-webpki-roots` a proposito, NO `native-tls` ni
+# `rustls-tls-native-roots`: las descargas van a HuggingFace y a GitHub, y
+# depender del almacen de certificados del SO lo hace fallar en Windows
+# Server core y en algunos Linux minimos donde no esta poblado.
+# `rustls` 0.23 + `ring` ya estan en el Cargo.lock por nexodeck-transport, asi
+# que esto NO agrega una segunda pila TLS.
+reqwest = { version = "0.12", default-features = false, features = [
+    "json",
+    "stream",
+    "http2",
+    "rustls-tls-webpki-roots",
+    "charset",
+] }
+
+# Los releases de llama.cpp vienen en .zip en Windows y en .tar.gz en Linux --
+# no es el mismo formato, y asumir zip para los dos deja la ruta de Linux rota
+# en silencio. `flate2` usa miniz_oxide por defecto: sigue sin entrar C al
+# workspace.
+zip = { version = "2.2", default-features = false, features = ["deflate"] }
+tar = "0.4"
+flate2 = { version = "1", default-features = false, features = ["rust_backend"] }
+
+# Localiza ejecutables sin pasar por un shell -- evita inyeccion en la
+# herramienta `which_executable`, que recibe un nombre propuesto por el modelo.
+which = "7"
+
+[dev-dependencies]
+# `io-std` solo lo necesitan los ejemplos interactivos (leen stdin); no entra al
+# .so de produccion.
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "test-util", "io-std"] }
+env_logger = "0.11"
+
+# Solo para `sidecar.rs`: el Job Object que garantiza que `llama-server.exe`
+# muere con NexoDeck aunque el proceso padre se cierre de golpe (crash,
+# "Finalizar tarea", un `taskkill /F` externo) y no llegue a correr ningun
+# `Drop` de Rust. Misma version que ya usan nexodeck-hardware y
+# nexodeck-actions, para que cargo no compile dos copias del crate `windows`.
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.62.2", features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_System_JobObjects",
+    "Win32_System_Threading",
+] }

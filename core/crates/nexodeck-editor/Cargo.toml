@@ -1,0 +1,28 @@
+[package]
+name = "nexodeck-editor"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { workspace = true }
+serde_json = "1"
+log = "0.4"
+
+# La ventana del editor solo existe en Windows: WebView2 es lo que hace que
+# escribir con tildes, teclas muertas y el corrector funcione como en Edge. En el
+# resto de plataformas el crate compila sin ventana (el protocolo y la logica se
+# prueban igual), y Android nunca arrastra wry al `.so`.
+[target.'cfg(windows)'.dependencies]
+wry = "0.57"
+tao = "0.37"
+# La carpeta de datos de WebView2, al lado del resto de datos de NexoDeck.
+directories = "5"
+# Los dialogos nativos de elegir carpeta y de guardar el zip, modales sobre la
+# ventana de notas. La pagina no puede abrirlos: un `<input type=file>` de
+# WebView2 no da la ruta de una carpeta, y NexoDeck necesita la ruta, no el
+# contenido.
+rfd = "0.15"
+# Decodificar los parametros del protocolo propio al servir un adjunto
+# (`/attachment?note=..&src=..`). Ya estaba en el Cargo.lock.
+percent-encoding = "2"

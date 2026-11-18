@@ -1,0 +1,21 @@
+[package]
+name = "nexodeck-hub"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { workspace = true }
+serde_json = "1"
+tokio = { version = "1", features = ["net", "rt", "sync", "time", "macros"] }
+tokio-tungstenite = { version = "0.24", features = ["rustls-tls-webpki-roots"] }
+futures-util = "0.3"
+# Solo para el POST de `negotiate` que SignalR exige antes de la conexion WS
+# -- no hay forma de saltarlo sin cambiar la configuracion del lado del
+# servidor, que no controlamos. `rustls-tls` y no el backend nativo: evita
+# arrastrar OpenSSL/schannel y reusa la misma pila TLS que `tokio-tungstenite`.
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["test-util", "rt-multi-thread", "macros"] }

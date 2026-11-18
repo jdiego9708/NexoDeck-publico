@@ -1,0 +1,4 @@
+# Etiqueta de la imagen local que genera build-vllm-image.sh: es de cada máquina.
+# (vllm-image.lock, en cambio, SÍ se versiona: es el digest fijado de la imagen base.)
+vllm-image.local
+__pycache__/

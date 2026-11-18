@@ -1,0 +1,35 @@
+[package]
+name = "nexodeck-docs"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde = { workspace = true }
+serde_json = "1"
+thiserror = "2.0"
+# El buzon vive en el directorio de datos del usuario, al lado del token del
+# servidor de control. Misma version que el resto del workspace.
+directories = "5"
+# Hash de cada documento al proponer, para saber si alguien lo toco antes de
+# aprobar. Misma version que nexodeck-ai y nexodeck-transport.
+sha2 = "0.10"
+# Quitar secretos (claves, cadenas de conexion) de las notas antes de mandarlas
+# a un modelo. Ya estaba en el Cargo.lock por otras dependencias.
+regex = "1"
+# La fecha de hoy en hora local, para los encabezados del diario ("15-sep") y la
+# linea de "Ultima actualizacion". `jiff` ya estaba en el Cargo.lock; lo nuevo
+# es `jiff-tzdb-platform`, que en Windows trae la base de zonas horarias
+# embebida porque el sistema no la expone en formato IANA.
+jiff = "0.2"
+# El trabajador habla con el modelo por el mismo cliente OpenAI-compatible que el
+# chat (`stream_chat`), pero con su propio proveedor: nunca toca la sesion del
+# chat.
+nexodeck-ai = { path = "../nexodeck-ai" }
+tokio = { version = "1", features = ["rt", "sync", "time", "macros"] }
+# Exportar la boveda a un zip desde la ventana de notas. Ya lo usa nexodeck-ai
+# con las mismas features, asi que no entra nada nuevo al Cargo.lock.
+zip = { version = "2.2", default-features = false, features = ["deflate"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time"] }

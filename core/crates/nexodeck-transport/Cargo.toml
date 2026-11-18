@@ -1,0 +1,48 @@
+[package]
+name = "nexodeck-transport"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+nexodeck-protocol = { path = "../nexodeck-protocol" }
+nexodeck-hardware = { path = "../nexodeck-hardware" }
+serde = { workspace = true }
+postcard = { version = "1", features = ["use-std"] }
+# `fs` es para el rol Android del USB: el fd del accessory se envuelve en un
+# `tokio::fs::File` (char device, no socket -- ver `usb/android.rs`).
+tokio = { version = "1", features = ["net", "rt", "sync", "time", "macros", "io-util", "fs"] }
+# Solo por el modulo `hello` (el formato del saludo al relay), que es
+# codigo puro: `default-features = false` deja afuera el servidor y su
+# tokio. Una sola definicion del formato para las dos puntas.
+nexodeck-relay = { path = "../nexodeck-relay", default-features = false }
+tokio-tungstenite = "0.24"
+tokio-rustls = { version = "0.26", default-features = false, features = ["ring"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
+rustls-pki-types = "1"
+rcgen = "0.13"
+mdns-sd = "0.13"
+sha2 = "0.10"
+uuid = { version = "1", features = ["v4"] }
+rand = "0.8"
+thiserror = "2.0"
+directories = "5"
+futures-util = "0.3"
+log = "0.4"
+
+# Solo el rol PC/host habla AOA por USB (modulo `usb`, gateado con el mismo
+# cfg). Android es el otro extremo del cable y recibe el fd del accessory
+# desde Kotlin, no enumera USB -- dejar `nusb` fuera de esa build evita
+# arrastrar la capa nativa de USB al `.so` de Android para nada.
+[target.'cfg(not(target_os = "android"))'.dependencies]
+nusb = { version = "0.2.5", features = ["tokio"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["test-util", "rt-multi-thread"] }
+# Solo para los ejemplos de diagnostico: sin un logger inicializado, los
+# `log::debug!` del handshake AOA (que dicen por que fallo cada interfaz) se
+# descartan en silencio, que es justo lo que hace falta ver contra hardware.
+env_logger = "0.11"
+# Con el servidor incluido (a diferencia de la dependencia normal, que solo
+# toma `hello`): la prueba del tunel levanta un relay de verdad.
+nexodeck-relay = { path = "../nexodeck-relay" }

@@ -1,0 +1,48 @@
+[package]
+name = "nexodeck-actions"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+thiserror = "2.0.18"
+# El runner capturado (src/runner.rs) necesita procesos async con pipes:
+# `process` para tokio::process::Command, `io-util` para BufReader::lines()
+# sobre los pipes, `sync` para el broadcast de eventos y los oneshot de
+# cancelacion, `time` para el umbral de detach y el agrupado de lineas.
+# `rt` alcanza: las tareas corren en el runtime que ya levanta frb.
+# `macros` es por el `tokio::select!` del supervisor -- sin declararla, el
+# crate compila igual SOLO por unificacion de features con nexodeck-ai, que en
+# Android no entra en el grafo: ahi el build se caeria.
+tokio = { version = "1", features = [
+    "rt",
+    "sync",
+    "time",
+    "process",
+    "io-util",
+    "macros",
+] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time"] }
+
+[target.'cfg(not(target_os = "android"))'.dependencies]
+# default-features trae soporte de imagenes (image-data) que no usamos --
+# solo pegamos texto en Fase 2. arboard no tiene backend de Android (no
+# expone ningun modulo `platform` para ese target_os) -- ver
+# `paste_to_clipboard` en src/lib.rs.
+arboard = { version = "3.6.1", default-features = false }
+
+# Solo para `focus.rs`: el hook de foco (Win32_UI_Accessibility), el
+# SendInput de Ctrl+V (Win32_UI_Input_KeyboardAndMouse) y
+# AttachThreadInput/GetCurrentProcessId (Win32_System_Threading). Misma
+# version que la que ya usa nexodeck-hardware, para que cargo no compile dos
+# copias del crate `windows`.
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.62.2", features = [
+    "Win32_Foundation",
+    "Win32_System_Threading",
+    "Win32_UI_Accessibility",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_UI_WindowsAndMessaging",
+] }

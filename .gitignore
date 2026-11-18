@@ -1,0 +1,42 @@
+# Rust
+core/target/
+# La pagina del editor de notas se construye con npm; el bundle que usa Rust se
+# commitea en core/crates/nexodeck-editor/assets/.
+node_modules/
+**/*.rs.bk
+Cargo.lock.bak
+
+# Dart / Flutter
+.dart_tool/
+app/.dart_tool/
+app/.flutter-plugins
+app/.flutter-plugins-dependencies
+app/.packages
+app/build/
+app/windows/flutter/ephemeral/
+app/linux/flutter/ephemeral/
+app/android/.gradle/
+app/android/local.properties
+app/android/gradlew
+app/android/gradlew.bat
+app/android/gradle/
+*.iml
+.pub-cache/
+.pub/
+
+# Nota: app/lib/bridge_generated/ y el glue Rust generado por
+# flutter_rust_bridge SI se comitean (practica estandar de frb).
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# Instaladores generados por scripts/build_installer.ps1
+dist/
+
+# Salidas de compilacion del sidecar de sensores (.NET). El binario que se
+# empaqueta sale de `melos run sensors:build` y cae en dist/, ya ignorado.
+sensors/**/bin/
+sensors/**/obj/

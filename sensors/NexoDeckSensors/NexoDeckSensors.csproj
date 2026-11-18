@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- `WinExe` y no `Exe`: sin esto es una app de consola, y lanzarla
+         elevada abre una ventana negra que el usuario puede cerrar sin saber
+         que estaba matando el servicio de sensores. Como no hay consola, el
+         diagnostico va a un archivo de log (ver `Log()` en Program.cs). -->
+    <!-- `Exe` y no `WinExe`: como servicio no hay ventana igual (el SCM no le
+         da consola), y `Exe` permite ademas correrlo a mano desde una terminal
+         para depurar, que es justo lo que `AddWindowsService` habilita. -->
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>NexoDeckSensors</AssemblyName>
+    <RootNamespace>NexoDeck.Sensors</RootNamespace>
+    <!-- Los numeros del JSON tienen que salir con punto decimal pase lo que
+         pase: este proceso corre elevado y bajo la cultura del sistema, que
+         en un Windows en espanol usa coma. Es exactamente el bug que tenia el
+         parseo del JSON de LibreHardwareMonitor ("58,6 C"), resuelto ahora en
+         el emisor en vez de en el receptor. -->
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- Un solo .exe autocontenido: el instalador lo copia y listo, sin
+         obligar al usuario a instalar el runtime de .NET. -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <!-- NativeAOT NO sirve aca: LibreHardwareMonitorLib carga su driver de
+         kernel desde un recurso embebido y usa reflexion, las dos cosas que
+         el recorte de AOT rompe. -->
+    <PublishTrimmed>false</PublishTrimmed>
+    <!-- Sin comprimir, el .exe autocontenido pesa 68 MB y se lo lleva entero
+         el instalador. La compresion del bundle no toca el codigo (se
+         descomprime en memoria al arrancar), asi que no arriesga la reflexion
+         de la libreria como si lo haria el trimming. -->
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <!-- El .pdb no aporta nada en la maquina del usuario y son 12 KB mas en
+         el instalador. -->
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.4" />
+    <!-- Hace que el MISMO binario corra como servicio cuando lo lanza el SCM y
+         en primer plano cuando lo lanza una persona, sin ramas propias. -->
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.1" />
+  </ItemGroup>
+
+</Project>
